@@ -1,14 +1,15 @@
 clear all
 close all
-%ccc
+ccc
 % if matlabpool('size') == 0
 %     matlabpool open
 % end
 
 exp = 'BikeOut';
-%subs = {'004' '005' '006' '007' '008' '009' '010' '011' '012' '013' '014' '016'};
- subs = {'014'; '016'}; %to test on just one sub
 
+
+%subs = {'004' '005' '006' '007' '008' '009' '010' '011' '012' '013' '014' '016'};
+%subs = {'014'}; %to test on just one sub
 
 nsubs = length(subs);
 conds = {'In';'Out'};
@@ -18,6 +19,7 @@ Pathname = 'M:\Data\bike\BikeOut\';
 if ~exist([Pathname 'segments\'])
     mkdir([Pathname 'segments\']);
 end
+
 [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
 for i_sub = 1:nsubs
@@ -27,19 +29,17 @@ for i_sub = 1:nsubs
         setname = Filename(1:end-5)
 
         EEG = pop_loadbv(Pathname, Filename);
-
-     
-        
-        
-        % get electrode locatoins
+                  
+% get electrode locations
         EEG=pop_chanedit(EEG, 'load',{'M:\Analysis\Electrodelocs\Vamp_EOG_electrode_locs.ced' 'filetype' 'autodetect'});
 
-        % arithmetically rereference to linked mastoid
+% arithmetically rereference to linked mastoid
          for x=1:EEG.nbchan-2
              EEG.data(x,:) = (EEG.data(x,:)-((EEG.data(EEG.nbchan-2,:))*.5));
          end
 
-       % Filter the data with low pass of 30
+% NO FILTER - DR. 
+%        Filter the data with low pass of 30
 %        EEG = pop_eegfilt( EEG, .1, 0, [], 0);  %high pass filter
 %        EEG = pop_eegfilt( EEG, 0, 20, [], 0);  %low pass filter
 
@@ -80,20 +80,20 @@ for i_sub = 1:nsubs
         end 
             EEG.event(i_event).type = (EEG.event(i_event).type(end));
         end    
-    end
-        %epoch
-
-        EEG = pop_epoch( EEG, {  '1'  '2'  }, [-1  2], 'newname',  sprintf('%s epochs' , setname), 'epochinfo', 'yes'); %Changed from -.2 1 to -1 2. DR
+        end
+        
+        
+ %epoch
+ 
+%Changed from [-.2 1] to [-1 2]. DR
+        EEG = pop_epoch( EEG, {  '1'  '2'  }, [-1  2], 'newname',  sprintf('%s epochs' , setname), 'epochinfo', 'yes'); 
         EEG = pop_rmbase( EEG, [-200    0]);
 
 %         eeglab redraw
 % 
 
-
-        %    Artifact rejection, trials with range >500 uV
-        % EEG =
-        % pop_eegthresh(EEG,1,[1:size(EEG.data,1)],-1000,1000,EEG.xmin,EEG.xmax,0,1);...
-        ...I removed this filter. DR
+        % Artifact rejection, trials with range >500 uV
+        EEG = pop_eegthresh(EEG,1,[1:size(EEG.data,1)],-1000,1000,EEG.xmin,EEG.xmax,0,1);
         
         %   EMCP occular correction          
         temp_ocular = EEG.data(end-1:end,:,:); %to save the EYE data for after
@@ -101,9 +101,10 @@ for i_sub = 1:nsubs
         EEG = gratton_emcp(EEG,selection_cards,{'VEOG'},{'HEOG'}); %this assumes the eye channels are called this
         EEG.emcp.table %this prints out the regression coefficients
         EEG.data(end-1:end,:,:) = temp_ocular; %replace the eye data
+        
          %    Artifact rejection, trials with range >250 uV
         EEG = pop_rmbase( EEG, [-200 0]); %baseline again since this changed it
-%         EEG = pop_eegthresh(EEG,1,[1:size(EEG.data,1)-2],-500,500,EEG.xmin,EEG.xmax,0,1);
+        EEG = pop_eegthresh(EEG,1,[1:size(EEG.data,1)-2],-500,500,EEG.xmin,EEG.xmax,0,1);
 
         tempEEG =   EEG;
 
@@ -122,3 +123,16 @@ for i_sub = 1:nsubs
     end %i_cond
 end %i_sub
 % 
+
+%New addittions to code (still working on it) - Daniel
+
+eeglab
+[ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
+EEG = pop_loadset('filename',{'001_BikeOut_Pilot_Corrected_Standard.set' '001_BikeOut_Pilot_Corrected_Target.set' '002_BikeOut_In_Corrected_Standard.set' '002_BikeOut_In_Corrected_Target.set' '002_BikeOut_Out_Corrected_Standard.set' '002_BikeOut_Out_Corrected_Target.set' '002_BikeOut_Pilot_Corrected_Standard.set' '002_BikeOut_Pilot_Corrected_Target.set' '003_BikeOut_In_Corrected_Standard.set' '003_BikeOut_In_Corrected_Target.set' '003_BikeOut_Out_Corrected_Standard.set' '003_BikeOut_Out_Corrected_Target.set' '004_BikeOut_In_Corrected_Standard.set' '004_BikeOut_In_Corrected_Target.set' '004_BikeOut_Out_Corrected_Standard.set' '004_BikeOut_Out_Corrected_Target.set' '005_BikeOut_In_Corrected_Standard.set' '005_BikeOut_In_Corrected_Target.set' '005_BikeOut_Out_Corrected_Standard.set' '005_BikeOut_Out_Corrected_Target.set' '006_BikeOut_In_Corrected_Standard.set' '006_BikeOut_In_Corrected_Target.set' '006_BikeOut_Out_Corrected_Standard.set' '006_BikeOut_Out_Corrected_Target.set' '007_BikeOut_In_Corrected_Standard.set' '007_BikeOut_In_Corrected_Target.set' '007_BikeOut_Out_Corrected_Standard.set' '007_BikeOut_Out_Corrected_Target.set' '008_BikeOut_In_Corrected_Standard.set' '008_BikeOut_In_Corrected_Target.set' '008_BikeOut_Out_Corrected_Standard.set' '008_BikeOut_Out_Corrected_Target.set' '009_BikeOut_In_Corrected_Standard.set' '009_BikeOut_In_Corrected_Target.set' '009_BikeOut_Out_Corrected_Standard.set' '009_BikeOut_Out_Corrected_Target.set' '010_BikeOut_In_Corrected_Standard.set' '010_BikeOut_In_Corrected_Target.set' '010_BikeOut_Out_Corrected_Standard.set' '010_BikeOut_Out_Corrected_Target.set' '011_BikeOut_In_Corrected_Standard.set' '011_BikeOut_In_Corrected_Target.set' '011_BikeOut_Out_Corrected_Standard.set' '011_BikeOut_Out_Corrected_Target.set' '012_BikeOut_In_Corrected_Standard.set' '012_BikeOut_In_Corrected_Target.set' '012_BikeOut_Out_Corrected_Standard.set' '012_BikeOut_Out_Corrected_Target.set' '013_BikeOut_In_Corrected_Standard.set' '013_BikeOut_In_Corrected_Target.set' '013_BikeOut_Out_Corrected_Standard.set' '013_BikeOut_Out_Corrected_Target.set' '014_BikeOut_In_Corrected_Standard.set' '014_BikeOut_In_Corrected_Target.set' '014_BikeOut_Out_Corrected_Standard.set' '014_BikeOut_Out_Corrected_Target.set' '016_BikeOut_In_Corrected_Standard.set' '016_BikeOut_In_Corrected_Target.set' '016_BikeOut_Out_Corrected_Standard.set' '016_BikeOut_Out_Corrected_Target.set'},'filepath','M:\\Data\\bike\\BikeOut\\segments\\');
+[ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 0,'study',0); 
+EEG = eeg_checkset( EEG );
+figure; pop_newtimef( EEG, 1, 1, [-200  998], [3         0.5] , 'topovec', 1, 'elocs', EEG.chanlocs, 'chaninfo', EEG.chaninfo, 'caption', 'Oz', 'baseline',[0], 'plotphase', 'off', 'padratio', 1, 'winsize', 100);
+
+
+ 
+
