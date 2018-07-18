@@ -86,7 +86,7 @@ for i_sub = 1:nsubs
  %epoch
  
 %Changed from [-.2 1] to [-1 2]. DR
-        EEG = pop_epoch( EEG, {  '1'  '2'  }, [-1  2], 'newname',  sprintf('%s epochs' , setname), 'epochinfo', 'yes'); 
+        EEG = pop_epoch( EEG, {  '1'  '2'  }, [-1  2], 'newname',  sprintf('%s epochs' , setname), 'epochinfo', 'yes'); %making the epochs longer is making the plot code not work. DR.  
         EEG = pop_rmbase( EEG, [-200    0]);
 
 %         eeglab redraw
